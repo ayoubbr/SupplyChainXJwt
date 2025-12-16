@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -19,28 +20,15 @@ import java.util.function.Function;
 @Service
 public class JWTService {
 
-    private String secretkey = "";
+    @Value("${jwt.secret}")
+    private String secret;
 
-    public JWTService() {
-
-        try {
-            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
-            SecretKey sk = keyGen.generateKey();
-            secretkey = Base64.getEncoder().encodeToString(sk.getEncoded());
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public String generateToken(String username) {
-        Map<String, Object> claims = new HashMap<>();
+    public String generateToken(UserDetails user) {
         return Jwts.builder()
-                .claims()
-                .add(claims)
-                .subject(username)
-                .issuedAt(new Date(System.currentTimeMillis()))
+                .subject(user.getUsername())
+                .claim("roles", user.getAuthorities())
+                .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 3600000)) // 1 hour validity
-                .and()
                 .signWith(getKey())
                 .compact();
 
@@ -59,7 +47,7 @@ public class JWTService {
     }
 
     private SecretKey getKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretkey);
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

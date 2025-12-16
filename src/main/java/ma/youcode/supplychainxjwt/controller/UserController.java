@@ -29,16 +29,4 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUserRole(id, newRole));
     }
 
-
-    @PostMapping("/register")
-    public User register(@RequestBody User user) {
-        return userService.register(user);
-
-    }
-
-    @PostMapping("/login")
-    public String login(@RequestBody User user) {
-
-        return userService.verify(user);
-    }
 }
