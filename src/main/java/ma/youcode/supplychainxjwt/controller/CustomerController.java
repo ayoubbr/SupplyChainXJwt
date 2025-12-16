@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import ma.youcode.supplychainxjwt.dto.CustomerRequest;
 import ma.youcode.supplychainxjwt.dto.CustomerResponse;
 import ma.youcode.supplychainxjwt.service.CustomerService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class CustomerController {
         customerService.delete(id);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public List<CustomerResponse> getCustomers() {
         return customerService.findAll();

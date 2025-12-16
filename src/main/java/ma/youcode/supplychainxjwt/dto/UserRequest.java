@@ -1,5 +1,7 @@
 package ma.youcode.supplychainxjwt.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import ma.youcode.supplychainxjwt.shared.enums.Role;
 
@@ -9,9 +11,20 @@ import ma.youcode.supplychainxjwt.shared.enums.Role;
 @AllArgsConstructor
 @Builder
 public class UserRequest {
-    private String email;
+
+    @NotBlank
+    private String username;
+
+    @NotBlank
     private String password;
-    private String firstName;
-    private String lastName;
+
+    @NotNull
     private Role role;
+
+    @NotBlank
+    private String email;
+
+    private String firstName;
+
+    private String lastName;
 }
