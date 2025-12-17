@@ -10,6 +10,7 @@ import ma.youcode.supplychainxjwt.shared.enums.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +26,9 @@ public class UserService {
     private JWTService jwtService;
     @Autowired
     AuthenticationManager authManager;
-    private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
+    @Autowired
+    public PasswordEncoder encoder;
+
 
     public UserResponse createUser(UserRequest request) {
         if (userRepository.existsByEmail(request.getEmail().toLowerCase().trim())) {
