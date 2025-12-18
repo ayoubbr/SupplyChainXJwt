@@ -1,4 +1,4 @@
-package ma.youcode.supplychainxjwt.model;
+package ma.youcode.supplychainxjwt.security;
 
 import jakarta.persistence.*;
 import lombok.*;

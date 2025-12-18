@@ -1,9 +1,7 @@
-package ma.youcode.supplychainxjwt.controller;
+package ma.youcode.supplychainxjwt.security;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import ma.youcode.supplychainxjwt.dto.UserRequest;
-import ma.youcode.supplychainxjwt.dto.UserResponse;
 import ma.youcode.supplychainxjwt.service.UserService;
 import ma.youcode.supplychainxjwt.shared.enums.Role;
 import org.springframework.http.ResponseEntity;

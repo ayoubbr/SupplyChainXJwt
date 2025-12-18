@@ -1,9 +1,5 @@
-package ma.youcode.supplychainxjwt.service;
+package ma.youcode.supplychainxjwt.security;
 
-import ma.youcode.supplychainxjwt.model.User;
-import ma.youcode.supplychainxjwt.model.UserPrincipal;
-import ma.youcode.supplychainxjwt.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

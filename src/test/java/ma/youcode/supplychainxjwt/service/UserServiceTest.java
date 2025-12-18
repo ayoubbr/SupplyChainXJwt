@@ -1,11 +1,11 @@
 package ma.youcode.supplychainxjwt.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import ma.youcode.supplychainxjwt.dto.UserRequest;
-import ma.youcode.supplychainxjwt.dto.UserResponse;
-import ma.youcode.supplychainxjwt.mapper.UserMapper;
-import ma.youcode.supplychainxjwt.model.User;
-import ma.youcode.supplychainxjwt.repository.UserRepository;
+import ma.youcode.supplychainxjwt.security.UserRequest;
+import ma.youcode.supplychainxjwt.security.UserResponse;
+import ma.youcode.supplychainxjwt.security.UserMapper;
+import ma.youcode.supplychainxjwt.security.User;
+import ma.youcode.supplychainxjwt.security.UserRepository;
 import ma.youcode.supplychainxjwt.shared.enums.Role;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

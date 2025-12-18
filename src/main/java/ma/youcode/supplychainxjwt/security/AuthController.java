@@ -1,8 +1,6 @@
-package ma.youcode.supplychainxjwt.controller;
+package ma.youcode.supplychainxjwt.security;
 
 import lombok.AllArgsConstructor;
-import ma.youcode.supplychainxjwt.dto.LoginRequest;
-import ma.youcode.supplychainxjwt.service.JWTService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

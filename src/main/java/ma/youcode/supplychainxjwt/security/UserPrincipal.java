@@ -1,4 +1,4 @@
-package ma.youcode.supplychainxjwt.model;
+package ma.youcode.supplychainxjwt.security;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

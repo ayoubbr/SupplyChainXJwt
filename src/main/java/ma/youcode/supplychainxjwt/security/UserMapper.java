@@ -1,8 +1,5 @@
-package ma.youcode.supplychainxjwt.mapper;
+package ma.youcode.supplychainxjwt.security;
 
-import ma.youcode.supplychainxjwt.dto.UserRequest;
-import ma.youcode.supplychainxjwt.dto.UserResponse;
-import ma.youcode.supplychainxjwt.model.User;
 import org.springframework.stereotype.Component;
 
 @Component

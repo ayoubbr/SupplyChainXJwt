@@ -1,4 +1,4 @@
-package ma.youcode.supplychainxjwt.service;
+package ma.youcode.supplychainxjwt.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

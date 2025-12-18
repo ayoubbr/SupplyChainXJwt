@@ -1,4 +1,4 @@
-package ma.youcode.supplychainxjwt.dto;
+package ma.youcode.supplychainxjwt.security;
 
 
 import lombok.*;
