@@ -18,12 +18,12 @@ public class JWTService {
     @Value("${jwt.secret}")
     private String secret;
 
-    public String generateToken(UserDetails user) {
+    public String generateAccessToken(UserDetails user) {
         return Jwts.builder()
                 .subject(user.getUsername())
                 .claim("roles", user.getAuthorities())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 3600000)) // 1 hour validity
+                .expiration(new Date(System.currentTimeMillis() + 60 * 1000)) // 1 min
                 .signWith(getKey())
                 .compact();
 

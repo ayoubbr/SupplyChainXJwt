@@ -1,5 +1,8 @@
 package ma.youcode.supplychainxjwt.shared.util;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.security.SignatureException;
 import ma.youcode.supplychainxjwt.shared.exception.BadRequestException;
 import ma.youcode.supplychainxjwt.shared.exception.ResourceNotFoundException;
 import ma.youcode.supplychainxjwt.shared.exception.UnauthorizedException;
@@ -59,6 +62,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<?>> handleResourceNotFound(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ex.getMessage()));
+    }
+
+
+    @ExceptionHandler({ExpiredJwtException.class, SignatureException.class, JwtException.class})
+    public ResponseEntity<ApiResponse<?>> handleJwt(RuntimeException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.error(ex.getMessage()));
     }
 

@@ -25,4 +25,5 @@ public class MyUserDetailsService implements UserDetailsService {
 
         return new UserPrincipal(user);
     }
+
 }
