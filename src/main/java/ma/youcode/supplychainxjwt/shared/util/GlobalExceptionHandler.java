@@ -45,30 +45,29 @@ public class GlobalExceptionHandler {
     }
 
     // 401 - Unauthorized
-    @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ApiResponse<?>> handleUnauthorized(UnauthorizedException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(ApiResponse.error(ex.getMessage()));
-    }
+//    @ExceptionHandler(UnauthorizedException.class)
+//    public ResponseEntity<ApiResponse<?>> handleUnauthorized(UnauthorizedException ex) {
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                .body(ApiResponse.error(ex.getMessage()));
+//    }
 
-    // 403 - Acces Denied because of ROLE
-    @ExceptionHandler(AuthorizationDeniedException.class)
-    public ResponseEntity<ApiResponse<?>> handleAuthorizationDenied(AuthorizationDeniedException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(ApiResponse.error(ex.getMessage()));
-    }
+   // 403 - Acces Denied because of ROLE
+//    @ExceptionHandler(AuthorizationDeniedException.class)
+//    public ResponseEntity<ApiResponse<?>> handleAuthorizationDenied(AuthorizationDeniedException ex) {
+//        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+//                .body(ApiResponse.error(ex.getMessage()));
+//    }
+
+//    @ExceptionHandler({ExpiredJwtException.class, SignatureException.class, JwtException.class})
+//    public ResponseEntity<ApiResponse<?>> handleJwt(RuntimeException ex) {
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                .body(ApiResponse.error(ex.getMessage()));
+//    }
 
     // 404 - Resource not found
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse<?>> handleResourceNotFound(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.error(ex.getMessage()));
-    }
-
-
-    @ExceptionHandler({ExpiredJwtException.class, SignatureException.class, JwtException.class})
-    public ResponseEntity<ApiResponse<?>> handleJwt(RuntimeException ex) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.error(ex.getMessage()));
     }
 

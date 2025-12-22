@@ -16,6 +16,7 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public CustomerResponse createCustomer(@RequestBody CustomerRequest customer) {
         return customerService.save(customer);
@@ -32,17 +33,19 @@ public class CustomerController {
         customerService.delete(id);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+
     @GetMapping
     public List<CustomerResponse> getCustomers() {
         return customerService.findAll();
     }
 
+    @PreAuthorize("hasRole('ADMIN') or hasRole('GESTIONNAIRE_APPROVISIONNEMENT')")
     @GetMapping("/name/{name}")
     public List<CustomerResponse> getCustomersByName(@PathVariable String name) {
         return customerService.findByName(name);
     }
 
+    @PreAuthorize("hasRole('GESTIONNAIRE_APPROVISIONNEMENT')")
     @GetMapping("/{id}")
     public CustomerResponse getCustomerById(@PathVariable Long id) {
         return customerService.findById(id);

@@ -23,7 +23,7 @@ public class JWTService {
                 .subject(user.getUsername())
                 .claim("roles", user.getAuthorities())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 60 * 1000)) // 1 min
+                .expiration(new Date(System.currentTimeMillis() + 60 * 60 * 1000)) // 60 min
                 .signWith(getKey())
                 .compact();
 

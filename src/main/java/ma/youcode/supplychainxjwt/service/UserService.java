@@ -14,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 public class UserService {
@@ -70,6 +72,9 @@ public class UserService {
         return userMapper.toResponse(user);
     }
 
+    public List<UserResponse> getAll() {
+        return userRepository.findAll().stream().map(userMapper::toResponse).toList();
+    }
     // For JWT
 //    public User register(User user) {
 //        user.setPassword(encoder.encode(user.getPassword()));
