@@ -15,7 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 @Transactional
 public class UserService {
@@ -33,11 +37,28 @@ public class UserService {
 
 
     public UserResponse createUser(UserRequest request) {
+        log.info(
+                "User creation requested username={} role={}",
+                request.getUsername(),
+                request.getRole()
+        );
+
+
         if (userRepository.existsByEmail(request.getEmail().toLowerCase().trim())) {
+            log.warn(
+                    "User creation failed: email already exists email={}",
+                    request.getEmail()
+            );
+
             throw new IllegalArgumentException("Email already exists");
         }
 
         if (userRepository.existsByUsername(request.getUsername().toLowerCase().trim())) {
+            log.warn(
+                    "User creation failed: username already exists username={}",
+                    request.getUsername()
+            );
+
             throw new IllegalArgumentException("Username already exists");
         }
 
@@ -49,19 +70,47 @@ public class UserService {
         user.setPassword(encoder.encode(user.getPassword()));
         User saved = userRepository.save(user);
 
+        log.info(
+                "User created successfully userId={} username={} role={}",
+                saved.getId(),
+                saved.getUsername(),
+                saved.getRole()
+        );
+
         return userMapper.toResponse(saved);
     }
 
     public UserResponse updateUserRole(Long id, Role newRole) {
+        log.info(
+                "User role update requested userId={} newRole={}",
+                id,
+                newRole
+        );
+
         if (newRole == null) {
             throw new IllegalArgumentException("Role cannot be null");
         }
 
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+        Optional<User> userOpt = userRepository.findById(id);
+
+        if (userOpt.isEmpty()) {
+            log.error(
+                    "User role update failed: user not found userId={}",
+                    id
+            );
+            throw new EntityNotFoundException("User not found with id: " + id);
+        }
+
+        User user = userOpt.get();
 
         user.setRole(newRole);
         User updated = userRepository.save(user);
+
+        log.info(
+                "User role updated successfully userId={} role={}",
+                updated.getId(),
+                updated.getRole()
+        );
 
         return userMapper.toResponse(updated);
     }
@@ -75,21 +124,6 @@ public class UserService {
     public List<UserResponse> getAll() {
         return userRepository.findAll().stream().map(userMapper::toResponse).toList();
     }
-    // For JWT
-//    public User register(User user) {
-//        user.setPassword(encoder.encode(user.getPassword()));
-//        userRepository.save(user);
-//        return user;
-//    }
 
-//    public String verify(UserDetails user) {
-//        Authentication authentication = authManager
-//                .authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
-//        if (authentication.isAuthenticated()) {
-//            return jwtService.generateToken(user);
-//        } else {
-//            return "fail";
-//        }
-//    }
 }
 

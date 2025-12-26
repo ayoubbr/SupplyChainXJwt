@@ -16,8 +16,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -29,41 +33,114 @@ public class OrderService {
     private final OrderMapper orderMapper;
 
     public OrderResponse save(OrderRequest orderRequest) {
+        log.info(
+                "Order creation requested customerId={} productId={} quantity={}",
+                orderRequest.getCustomerId(),
+                orderRequest.getProductId(),
+                orderRequest.getQuantity()
+        );
+
         validateOrder(orderRequest);
 
         Order order = new Order();
         order.setStatus(OrderStatus.EN_PREPARATION);
         order.setQuantity(orderRequest.getQuantity());
 
-        Customer customer = customerRepository.findById(orderRequest.getCustomerId()).orElseThrow(
-                () -> new EntityNotFoundException("Customer not found"));
+
+        Optional<Customer> customerOpt =
+                customerRepository.findById(orderRequest.getCustomerId());
+
+        if (customerOpt.isEmpty()) {
+            log.error(
+                    "Order creation failed: customer not found customerId={}",
+                    orderRequest.getCustomerId()
+            );
+            throw new EntityNotFoundException("Customer not found");
+        }
+
+        Customer customer = customerOpt.get();
+
         order.setCustomer(customer);
 
-        Product product = productRepository.findById(orderRequest.getProductId()).orElseThrow(
-                () -> new EntityNotFoundException("Product not found"));
+        Optional<Product> productOpt =
+                productRepository.findById(orderRequest.getProductId());
+
+        if (productOpt.isEmpty()) {
+            log.error(
+                    "Order creation failed: product not found productId={}",
+                    orderRequest.getProductId()
+            );
+            throw new EntityNotFoundException("Product not found");
+        }
+
+        Product product = productOpt.get();
 
         if (product.getStock() < orderRequest.getQuantity()) {
+            log.error(
+                    "Insufficient stock productId={} available={} requested={}",
+                    product.getId(),
+                    product.getStock(),
+                    orderRequest.getQuantity()
+            );
             throw new IllegalStateException("Product doesn't have enough stock: " +
                     product.getStock() + " - Quantity ordered: " + orderRequest.getQuantity());
         }
+
+        long oldQty = product.getStock();
+        long newQty = product.getStock() - orderRequest.getQuantity();
+
+        log.info(
+                "Stock updated productId={} oldQty={} newQty={}",
+                product.getId(),
+                oldQty,
+                newQty
+        );
 
         product.setStock(product.getStock() - orderRequest.getQuantity());
         productRepository.save(product);
         order.setProduct(product);
 
         Order saved = orderRepository.save(order);
+        log.info(
+                "Order created successfully orderId={} customerId={} productId={} quantity={}",
+                saved.getId(),
+                customer.getId(),
+                product.getId(),
+                saved.getQuantity()
+        );
         return orderMapper.mapOrderToResponse(saved);
     }
 
     public OrderResponse update(Long id, OrderRequest orderRequest) {
+        log.info(
+                "Order update requested orderId={} newStatus={} newProductId={} newQuantity={}",
+                id,
+                orderRequest.getStatus(),
+                orderRequest.getProductId(),
+                orderRequest.getQuantity()
+        );
+
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("Invalid order ID");
         }
 
-        Order existingOrder = orderRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + id));
+        Optional<Order> orderOpt = orderRepository.findById(id);
+
+        if (orderOpt.isEmpty()) {
+            log.error(
+                    "Order update failed: order not found orderId={}",
+                    id
+            );
+            throw new EntityNotFoundException("Order not found with id: " + id);
+        }
+
+        Order existingOrder = orderOpt.get();
 
         if (existingOrder.getStatus() == OrderStatus.LIVREE) {
+            log.warn(
+                    "Order update denied: already delivered orderId={}",
+                    id
+            );
             throw new IllegalStateException("Cannot update an order that is already delivered");
         }
 
@@ -92,6 +169,13 @@ public class OrderService {
 
         // If product changed
         if (!oldProduct.getId().equals(newProductId)) {
+            log.info(
+                    "Order product changed orderId={} oldProductId={} newProductId={}",
+                    id,
+                    oldProduct.getId(),
+                    newProductId
+            );
+
             newProduct = productRepository.findById(newProductId)
                     .orElseThrow(() -> new EntityNotFoundException("Product not found"));
 
@@ -101,6 +185,14 @@ public class OrderService {
             productRepository.save(oldProduct);
 
             if (newProduct.getStock() < orderRequest.getQuantity()) {
+                log.error(
+                        "Stock insufficient for order update orderId={} productId={} available={} requested={}",
+                        id,
+                        newProduct.getId(),
+                        newProduct.getStock(),
+                        orderRequest.getQuantity()
+                );
+
                 throw new IllegalStateException("Insufficient stock for new product: " + newProduct.getName() +
                         " - stock: " + newProduct.getStock() + " - Quantity ordered: " + orderRequest.getQuantity());
             }
@@ -124,14 +216,33 @@ public class OrderService {
 
         existingOrder.setQuantity(orderRequest.getQuantity());
 
-        return orderMapper.mapOrderToResponse(orderRepository.save(existingOrder));
+        Order saved = orderRepository.save(existingOrder);
+
+        log.info(
+                "Order updated successfully orderId={} status={} quantity={}",
+                existingOrder.getId(),
+                existingOrder.getStatus(),
+                existingOrder.getQuantity()
+        );
+
+        return orderMapper.mapOrderToResponse(saved);
     }
 
     public OrderResponse cancel(Long id) {
+        log.info(
+                "Order cancellation requested orderId={}",
+                id
+        );
+
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
 
         if (order.getStatus() == OrderStatus.LIVREE) {
+            log.warn(
+                    "Order cancellation denied: already delivered orderId={}",
+                    id
+            );
+
             throw new IllegalStateException("Cannot cancel an order that is already delivered");
         }
 
@@ -141,6 +252,13 @@ public class OrderService {
         productRepository.save(order.getProduct());
 
         Order cancelled = orderRepository.save(order);
+
+        log.info(
+                "Order cancelled successfully orderId={} restoredStock={} productId={}",
+                cancelled.getId(),
+                cancelled.getQuantity(),
+                cancelled.getProduct().getId()
+        );
 
         return orderMapper.mapOrderToResponse(cancelled);
     }
@@ -153,6 +271,8 @@ public class OrderService {
     }
 
     public OrderResponse getById(Long id) {
+        log.debug("Order fetched orderId={}", id);
+
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found with id: " + id));
 

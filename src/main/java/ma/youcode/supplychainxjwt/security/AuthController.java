@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @AllArgsConstructor
@@ -23,6 +25,10 @@ public class AuthController {
 
     @PostMapping("/login")
     public AuthResponse login(@RequestBody LoginRequest req) {
+        log.info(
+                "Login attempt username={}",
+                req.getUsername()
+        );
 
         Authentication auth = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -37,6 +43,12 @@ public class AuthController {
         String accessToken = jwtService.generateAccessToken(userDetails);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
 
+        log.info(
+                "Login successful userId={} username={}",
+                user.getId(),
+                user.getUsername()
+        );
+
         return AuthResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken.getToken())
@@ -46,6 +58,11 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public AuthResponse refresh(@RequestBody RefreshTokenRequest request) {
+        log.info(
+                "Token refresh requested refreshToken={}",
+                request.getRefreshToken().substring(0, 8) + "..."
+        );
+
         RefreshToken refreshToken = refreshTokenService.verifyRefreshToken(request.getRefreshToken());
 
         User user = refreshToken.getUser();
@@ -57,6 +74,11 @@ public class AuthController {
 
         String newAccessToken = jwtService.generateAccessToken(userDetails);
 
+        log.info(
+                "Token refreshed successfully userId={}",
+                user.getId()
+        );
+
         return AuthResponse.builder()
                 .refreshToken(newRefreshToken.getToken())
                 .accessToken(newAccessToken)
@@ -67,7 +89,18 @@ public class AuthController {
     @PostMapping("/logout")
     public void logout(Authentication authentication) {
         User user = ((UserPrincipal) authentication.getPrincipal()).getUser();
+
+        log.info(
+                "Logout requested userId={}",
+                user.getId()
+        );
+
         refreshTokenService.revokeUserTokens(user);
+
+        log.info(
+                "Logout successful userId={}",
+                user.getId()
+        );
     }
 
 }
